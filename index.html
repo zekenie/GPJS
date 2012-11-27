@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<link rel="stylesheet" href="barChart.css"/>
+	<link rel="stylesheet" href="jquery.handsontable.css"/>
+	<link rel="stylesheet" href="bootstrap.css"/>
+	<style type="text/css">
+		.functionToggle,.constantToggle,#otherConstants{
+			width:100%;
+			margin-top:0.5em;
+		}
+		section{
+			margin-top:4em;
+		}
+	</style>
+	<script src="jquery.min.js"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="underscore.js"></script>
+	<script src="d3.v2.min.js"></script>
+	<script src="jquery.handsontable.js"></script>
+	<script src="barChart.js"></script>
+	<script src="scatterplot.js"></script>
+	
+	
+</head>
+<body>
+	<div class="container">
+		<section id="inputData">
+			<div class="page-header"><h1>Input Data</h1></div>
+			<p>Please paste your data. The last column is the value that the evolved functions will attempt to predict. The first row should be strings that contain column names.</p>
+			<div class="dataTable" id="dataInput" style=" width:100%; min-height: 200px;"></div>
+		</section>
+
+		<section id="functionSet">
+			<div class="page-header">
+				<h1>Function set</h1>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="functionToggle btn" data-function="sum" data-toggle="button">Sum</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="subtract" data-toggle="button">Subtract</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="pd" data-toggle="button">Protected Division</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="mult" data-toggle="button">Multiply</button></div>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="functionToggle btn" data-function="sin" data-toggle="button">Sin</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="cos" data-toggle="button">Cos</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="tan" data-toggle="button">Tan</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="sqrt" data-toggle="button">Square Root</button></div>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="functionToggle btn" data-function="abs" data-toggle="button">Absolute Value</button></div>
+				<div class="span3"><button class="functionToggle btn" data-function="mod" data-toggle="button">Modulo</button></div>
+			</div>
+		</section>
+
+		<section id="constants">
+			<div class="page-header">
+				<h1>Constants</h1>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.E" data-toggle="button"><i>e</i></button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.LN2" data-toggle="button">ln(2)</button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.LN10" data-toggle="button">ln(10)</button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.LOG2E" data-toggle="button">log2(e)</button></div>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.LOG10E" data-toggle="button">Log10(e)</button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.PI" data-toggle="button">&pi;</button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.SQRT1_2" data-toggle="button">sqrt(1/2)</button></div>
+				<div class="span3"><button class="constantToggle btn" data-constant="Math.SQRT_2" data-toggle="button">sqrt(2)</button></div>
+			</div>
+			<div class="row">
+				<div class="span3"><button class="constantToggle btn" data-constant="random" data-toggle="button">Random Number</button></div>
+				<div class="span9" style="margin-top: 0.5em;">Other constants (separated by commas) <input style="width:240px;" type="text" id="otherConstants"/></div>
+				
+			</div>
+		</section>
+
+		<section id="gpParams">
+			<div class="page-header"><h1>GP Parameters</h1></div>
+			<form id="gpParamsFrm">
+				<div class="row">
+					<div class="span3">
+						Tournament size
+						<br/>
+						<input type="text" name="tournamentSize" value="7"/>
+					</div>
+				
+					<div class="span3">
+						Terminal probability
+						<br/>
+						<input type="text" name="terminalProbability" value="0.5"/>
+					</div>
+					<div class="span3">
+						Variable vs constant in code
+						<br/>
+						<input type="text" name="variableVsConstant" value="0.5"/>
+					</div>
+					<div class="span3">
+						% Crossover
+						<br/>
+						<input type="text" name="percentCrossover" value="0.45"/>
+					</div>
+				</div>
+				<div class="row" style="margin-top:0.5em;">
+					<div class="span3">
+						% Mutation
+						<br/>
+						<input type="text" name="percentMutation" value="0.45"/>
+					</div>
+				
+					<div class="span3">
+						% Cloning
+						<br/>
+						<input type="text" name="percentCloning" value="0.05"/>
+					</div>
+					<div class="span3">
+						Generation Size
+						<br/>
+						<input type="text" name="popsize" value="150"/>
+					</div>
+					<div class="span3">
+						Stop after n generations
+						<br/>
+						<input type="text" name="stopAt" value="100"/>
+					</div>
+				</div>
+				<div class="row" style="margin-top:0.5em;">
+					<div class="span3">
+						Stop if error is lower than
+						<br/>
+						<input type="text" name="errorCutoff" value="0.01"/>
+					</div>
+					<div class="span3">
+						% reserved for validation
+						<br/>
+						<input type="text" name="percentValidation" value="0.40"/>
+					</div>
+				
+				
+				</div>
+			</form>
+		</section>
+
+		<section>
+			<button id="evolve" class="btn btn-primary" style="width:100%; height: 100px; font-size: 2em;">Evolve</button>
+		</section>
+
+		<section>
+			<div class="progress progress-striped"><div class="bar" style="width: 0;"></div></div>
+			<div class="prettyprint linenums" style="height:150px; overflow:scroll;"><code id="bestProgram"></code></div>
+			Best Error:
+			<div id="errorChart"></div>
+			Best Size:
+			<div id="sizeChart"></div>
+			Best Program's performance (green are fitness cases, red is best programs predicted value)
+			<div id="bestProgramPerformance"></div>
+			Best Program's Performance on validation set
+			<div id="bestProgramValidation"></div>
+			Piano Plot (The redness cooresponds to the length):
+			<div id="pianoPlot"></div>
+			Error Vs length (the redness represents generation. Black is gen0, red is max gen)
+			<div id="sizeVsLength"></div>
+		</section>
+	</div>
+
+	<script>
+		$("#dataInput").handsontable({
+			rows:5,
+			cols:14,
+			minSpareCols: 1, 
+		    minSpareRows: 1, 
+		    rowHeaders: true,
+		    colHeaders: true
+		});
+	var errorChart = new chart({selector:"#errorChart"});
+	var sizeChart = new chart({selector:"#sizeChart"}); 
+
+		var possibleFunctionTable =  {
+			mult:2,
+			sum:2,
+			subtract:2,
+			pd:2,
+			sin:1,
+			cos:1,
+			tan:1,
+			sqrt:1,
+			abs:1,
+			mod:2
+		};
+
+		var _functionTable = {};
+
+		$(".functionToggle").click(function(){
+			var fn = $(this).attr("data-function");
+			if(_.has(_functionTable,fn))	//if the clicked function is in the functionTable
+				_functionTable = _.omit(_functionTable,fn);
+			else{						//if the current function's not in the ft
+				_functionTable = _.extend(_functionTable,_.object([[fn,possibleFunctionTable[fn]]]));
+			}
+		});
+
+		var _constants = [];
+
+		$(".constantToggle").click(function(){
+			var constant = $(this).attr("data-constant");
+			if($.inArray(constant,_constants) >= 0){
+				_constants = _.without(_constants,constant);
+			}else{
+				_constants.push(constant);
+			}
+		});
+		var passObj = {};
+		var run;
+		$("#evolve").click(function(){
+			var rawdata = $("#dataInput").data('handsontable').getData();
+			var _terminals = _.map(
+								_.initial(_.compact(rawdata[0])) ,					//clean up and get the beginning row
+								function(str){ return str.split(' ').join('_'); }	//replace spaces with underscores
+							);
+
+			var data = [];
+			_.each(_.initial( _.rest(rawdata)),function(row,i){
+				data.push(_.map(_.first(row,_terminals.length + 1),function(x){return parseFloat(x);}));
+			});
+			errorChart.draw();
+			sizeChart.draw();
+			
+			$.each($("#gpParamsFrm").serializeArray(),function(key,val){
+				passObj[val.name] = parseFloat(val.value);
+			});
+
+			//var otherConstantStr = 
+
+			_constants = _.compact(_constants.concat(_.map($("#otherConstants").val().split(","),function(x){return parseFloat(x);})));
+			
+			_.extend(passObj,{
+				terminals:_terminals,
+				functionTable:_functionTable,
+				targetData: data,
+				constants:_constants,
+				onComplete:function(){
+					//var population = _.flatten(run.generations,true);
+					//window.population = population;
+					//var population = window.population;
+					var bestGuy = _.min(window.maybe,function(ind){return ind.fullError ;});
+					console.log("best ind:");
+					console.log(bestGuy);
+					var pianoScatterData = [],
+						bestProgramPerformanceData = [],
+						bestProgramValidationData = [],
+						sizeVsLengthData = [];
+
+					var sizeMax = _.max(window.population,function(ind){
+						return ind.size;
+					});
+					var drawAfter;
+					_.each(window.population,function(ind,i){
+						if(i%4 === 0){
+							var red = Math.round((ind.size * 255)/sizeMax.size);
+							var _color = "rgba(" + red + ",0,0,0.5)";
+							var point = {x:i,y:Math.log(ind['error'])/Math.log(10),class:"ind",color:_color};
+							//if(ind.program === run.bestProgram.program){
+								//point.color = "blue";
+								//drawAfter = point;
+							//}
+							pianoScatterData.push(point);
+						}
+					});
+					
+					var piannoRoll = new scatterplot({data:pianoScatterData,selector:"#pianoPlot",yLab:"log_10(error)",xLab:"individual(i)",r:4});
+					piannoRoll.setup();
+					piannoRoll.draw();
+					//piannoRoll.addPoint(drawAfter);
+
+
+					_.each(run._eval(bestGuy.program,run.Xs),function(val,i){
+						bestProgramPerformanceData.push({x:i,y:val,color:'red'});
+					});
+				
+					_.each(run.Ys,function(val,i){
+						bestProgramPerformanceData.push({x:i,y:val,color:'green'});
+					});
+
+					var bestProgramPerformance = new scatterplot({data:bestProgramPerformanceData,selector:"#bestProgramPerformance",yLab:"Target Value",xLab:"Fitness Case",r:5});
+					bestProgramPerformance.setup();
+					bestProgramPerformance.draw();
+
+					_.each(run._eval(bestGuy.program,run.validateXs),function(val,i){
+						bestProgramValidationData.push({color:"green",x:i,y:val});
+					})
+					_.each(run.validateYs,function(val,i){
+						bestProgramValidationData.push({color:"red",x:i,y:val});
+					});
+					var bestProgramValidation = new scatterplot({data:bestProgramValidationData,selector:"#bestProgramValidation", ylab:"Validation Target Value",xLab:"fitnessCase",r:5,yLab:"Target Value"});
+					bestProgramValidation.setup();
+					bestProgramValidation.draw();
+
+					var genMax = run.generations.length -1;
+					_.each(window.population,function(ind,i){
+						if(i%4 === 0){
+							var red = Math.round((ind.generation * 255)/genMax);
+							var _color = "rgba(" + red + ",0,0,0.5)";
+							sizeVsLengthData.push({x:ind['size'],y:Math.log(ind['error'])/Math.log(10),color:_color,class:"ind"});
+						}
+					});
+					var sizeVsLength = new scatterplot({data:sizeVsLengthData,selector:"#sizeVsLength",yLab:"log_10(error)",xLab:"length",r:4});
+					sizeVsLength.setup();
+					sizeVsLength.draw();
+					//sizeVsLength.addPoint({x:run.bestProgram.size,y:Math.log(run.bestProgram.error)/Math.log(10),color:"blue",class:"ind"});
+					$(".ind").popover({
+						content:function(){
+							return "<div style='word-wrap: break-word; max-height:250px; overflow:scroll;'>" + window.population[$(this).attr("data-i")].program + "</div>";
+						},
+						title:function(){
+							return "Size: " + window.population[$(this).attr("data-i")].size + ", Error: " + window.population[$(this).attr("data-i")].error + " Generation: " + window.population[$(this).attr("data-i")].generation;
+						},
+						trigger:"manual"
+					}).click(function(){
+						$(".ind").not(this).popover("hide");
+						$(this).popover("toggle");
+					});
+				}
+			});
+
+			run = new GP(passObj);
+			run.evolve();
+		});
+		
+
+	</script>
+	<script src="barChart.js"></script>
+	<script src="multiX.js"></script>
+	<script src="geography.js"></script>
+	
+</body>
+</html>

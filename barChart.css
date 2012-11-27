@@ -1,0 +1,44 @@
+path.line {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1px;
+}
+path {
+    stroke: black;
+    stroke-width: 2;
+    fill: none;
+}
+ 
+line {
+    stroke: black;
+}
+
+path.area {
+  fill: #e7e7e7;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: #fff;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+
+svg { padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 80px;}
+ #bestProgram{word-wrap: break-word;font-size:0.7em; height: 200px; overflow-y:scroll;}
+
+ #errorChart,#sizeChart{height: 215px;}
